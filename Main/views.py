@@ -88,11 +88,20 @@ class ElevatorSystemViewSet(viewsets.ViewSet):
         
     def assign_elevator(self,request):
         elevators = Elevator.objects.all()
-        elevatorsystem = ElevatorSystem.objects.get(elevatorsystem_id=0)
-        next_floor = elevatorsystem.requests[0]
-        elevatorsystem.requests.pop(0)
-        response = elevatorsystem.assign_elevator(elevatorsystem,next_floor, elevators)
-        elevatorsystem.save()
-        return Response(response)
+        try:
+            elevatorsystem = ElevatorSystem.objects.get(elevatorsystem_id=0)
+        except ElevatorSystem.DoesNotExist:
+            return Response("ElevatorSytem doesn't exist")
+        
+        request_list = elevatorsystem.requests
+        size  = len(request_list)
+        if size>=1:
+            next_floor = request_list[0]
+            elevatorsystem.requests.pop(0)
+            response = elevatorsystem.assign_elevator(elevatorsystem,next_floor, elevators)
+            elevatorsystem.save()
+            return Response(response)
+        else:
+            return Response("There is no request currently in the elevator system")
         
 
