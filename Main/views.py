@@ -10,38 +10,50 @@ class ElevatorViewSet(viewsets.ViewSet):
         return Response(serializer.data)
 
     def retrieve(self, request, pk=None):
-        queryset = Elevator.objects.get(elevator_id=pk)
+        try:
+            queryset = Elevator.objects.get(elevator_id=pk)
+        except Elevator.DoesNotExist:
+            return Response("NO elevator exist with id"+ str(pk))
         serializer = ElevatorSerializer(queryset)
         return Response(serializer.data)
 
-    def fetch_requests(self, request, pk=None):
-        elevator = Elevator.objects.get(elevator_id=pk)
+    def fetch_requests(self, request, pk):
+        try:
+            elevator = Elevator.objects.get(elevator_id=pk)
+        except Elevator.DoesNotExist:
+            return Response("No elevator found with id " + str(pk))
         return Response(elevator.requests)
 
-    def fetch_next_destination(self, request, pk=None):
-        elevator = Elevator.objects.get(elevator_id=pk)
-        if elevator.requests:
-            return Response(elevator.requests[0])
+    def fetch_next_destination(self, request):
+        try:
+            elevatorsys = ElevatorSystem.objects.get(elevatorsystem_id=0)
+        except ElevatorSystem.DoesNotExist:
+            return Response("No elevator Reuests found ")
+        if elevatorsys.requests:
+            return Response(elevatorsys.requests[0])
         else:
             return Response("No requests for the elevator")
 
-    def fetch_direction(self, request, pk=None):
+    def fetch_direction(self, request, pk):
         elevator = Elevator.objects.get(elevator_id=pk)
-        return Response(elevator.direction)
+        return Response(f"Current floor is {elevator.current_floor} and direction is {elevator.direction}")
 
 
-    def mark_maintenance(self, request, pk=None):
-        elevator = Elevator.objects.get(elevator_id=pk)
+    def mark_maintenance(self, request, pk):
+        try:
+            elevator = Elevator.objects.get(elevator_id=pk)
+        except Elevator.DoesNotExist:
+            return Response(f"Elevator does not exist with id {pk}")
         elevator.is_operational = False
         elevator.save()
         return Response("Elevator marked as not working")
 
-    def open_door(self, request, pk=None):
+    def open_door(self, request, pk):
         elevator = Elevator.objects.get(elevator_id=pk)
         elevator.open_door()
         return Response("Door opened")
 
-    def close_door(self, request, pk=None):
+    def close_door(self, request, pk):
         elevator = Elevator.objects.get(elevator_id=pk)
         elevator.close_door()
         return Response("Door closed")
@@ -54,7 +66,7 @@ class ElevatorSystemViewSet(viewsets.ViewSet):
 
     def initialize(self, request):
         num_elevators = request.data.get('num_elevators')
-        no_floor = request.data.get('no_floor')
+        no_floor = request.data.get('no_floors')
         try:
             check_intializing = ElevatorSystem.objects.get(elevatorsystem_id=0)
         except ElevatorSystem.DoesNotExist:
@@ -71,13 +83,15 @@ class ElevatorSystemViewSet(viewsets.ViewSet):
                 return Response("Invalid number of elevators")
 
     def reset(self, request):
-        # Delete all elevator objects
         Elevator.objects.all().delete()
         ElevatorSystem.objects.all().delete()
         return Response("All elevator objects have been deleted")
     
     def save_request(self, request, floor_no):
-        elevator = ElevatorSystem.objects.get(elevatorsystem_id=0)
+        try:
+            elevator = ElevatorSystem.objects.get(elevatorsystem_id=0)
+        except:
+            return Response("No elevator System exists try again after Intializing the system")
         if elevator is not None and floor_no <= elevator.num_floors and floor_no>=0:
             ElevatorSystem.add_request(floor_no)
             return Response("Request saved successfully")

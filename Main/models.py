@@ -4,7 +4,7 @@ from django.contrib.postgres.fields import ArrayField
 
 class Elevator(models.Model):
     elevator_id = models.IntegerField(primary_key=True)
-    current_floor = models.IntegerField(default=1)
+    current_floor = models.IntegerField(default=0)
     direction = models.CharField(max_length=20,default="Stop")
     is_running = models.BooleanField(default=False)
     is_door_open = models.BooleanField(default=False)
@@ -51,11 +51,6 @@ class Elevator(models.Model):
         for elevator_id in range(num_elevators):
             cls.objects.create(elevator_id=elevator_id)
 
-class Floor(models.Model):
-    floor_number = models.IntegerField(unique=True)
-
-    def __str__(self):
-        return f"Floor {self.floor_number}"
 
 class ElevatorSystem(models.Model):
     num_floors = models.IntegerField(default=10)
@@ -75,7 +70,7 @@ class ElevatorSystem(models.Model):
 
         for elevator in elevators:
             distance = abs(elevator.current_floor - floor_no)
-            if not elevator.is_running and distance < min_distance:
+            if not elevator.is_running and distance < min_distance and elevator.is_operational:
                 optimal_elevator = elevator
                 min_distance = distance
 

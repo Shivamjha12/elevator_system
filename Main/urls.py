@@ -42,12 +42,12 @@ elevator_system_reset = ElevatorSystemViewSet.as_view({
 })
 
 urlpatterns = [
-    path('elevator/', elevator_list, name='elevator-list'),
+    path('', elevator_list, name='elevator-list'),
     path('elevator/<int:pk>/', elevator_detail, name='elevator-detail'),
     path('elevator/requests/<int:pk>/', elevator_fetch_requests, name='elevator-fetch-requests'),
-    path('elevator/next-destination/<int:pk>/', elevator_fetch_next_destination, name='elevator-fetch-next-destination'),
+    path('elevator/nextdestination/', elevator_fetch_next_destination, name='elevator-fetch-next-destination'),
     path('elevator/direction/<int:pk>/', elevator_fetch_direction, name='elevator-fetch-direction'),
-    path('elevatorsystem/saverequest/<int:floor_no>', elevatorSystem_save_request, name='elevatorsystem-save-request'),
+    path('elevatorsystem/addrequest/<int:floor_no>', elevatorSystem_save_request, name='elevatorsystem-save-request'),
     path('elevatorsystem/assignnextrequest/', elevatorSystem_assign_elevator, name='elevatorsystem-assign_elevator'),
     path('elevator/mark-maintenance/<int:pk>/', elevator_mark_maintenance, name='elevator-mark-maintenance'),
     path('elevator/open-door/<int:pk>/', elevator_open_door, name='elevator-open-door'),
