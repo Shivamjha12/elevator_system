@@ -70,7 +70,7 @@ class ElevatorSystem(models.Model):
 
         for elevator in elevators:
             distance = abs(elevator.current_floor - floor_no)
-            if not elevator.is_running and distance < min_distance and elevator.is_operational:
+            if elevator.is_operational and not elevator.is_running and distance < min_distance :
                 optimal_elevator = elevator
                 min_distance = distance
 
